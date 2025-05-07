@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.*?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="controller.AutorController"> <padding>
+    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+</padding>
+
+    <Label text="Gerenciar Autores" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="ID (Buscar/Atualizar/Excluir):" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <TextField fx:id="txtAutorId" promptText="ID do Autor" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+        <Label text="Nome:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <TextField fx:id="txtAutorNome" promptText="Nome do Autor" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+        <Label text="Nacionalidade:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <TextField fx:id="txtAutorNacionalidade" promptText="Nacionalidade do Autor" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="btnAutorSalvar" text="Salvar" onAction="#handleSalvarAutor" />
+        <Button fx:id="btnAutorAtualizar" text="Atualizar" onAction="#handleAtualizarAutor" />
+        <Button fx:id="btnAutorExcluir" text="Excluir" onAction="#handleExcluirAutor" />
+        <Button fx:id="btnAutorLimpar" text="Limpar Campos" onAction="#handleLimparAutor" />
+        <Button fx:id="btnAutorBuscar" text="Buscar por ID" onAction="#handleBuscarAutorPorId" />
+    </HBox>
+
+    <TableView fx:id="tblAutores" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colAutorId" text="ID" prefWidth="50" />
+            <TableColumn fx:id="colAutorNome" text="Nome" prefWidth="200" />
+            <TableColumn fx:id="colAutorNacionalidade" text="Nacionalidade" prefWidth="150" />
+        </columns>
+    </TableView>
+</VBox>

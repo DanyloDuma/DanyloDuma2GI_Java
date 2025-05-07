@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="controller.EditoraController"> <padding>
+    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+</padding>
+
+    <Label text="Gerenciar Editoras" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="ID (Buscar/Atualizar/Excluir):" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <TextField fx:id="txtEditoraId" promptText="ID da Editora" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+        <Label text="Nome:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <TextField fx:id="txtEditoraNome" promptText="Nome da Editora" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+        <Label text="Cidade:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <TextField fx:id="txtEditoraCidade" promptText="Cidade da Editora" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="btnEditoraSalvar" text="Salvar" onAction="#handleSalvarEditora" />
+        <Button fx:id="btnEditoraAtualizar" text="Atualizar" onAction="#handleAtualizarEditora" />
+        <Button fx:id="btnEditoraExcluir" text="Excluir" onAction="#handleExcluirEditora" />
+        <Button fx:id="btnEditoraLimpar" text="Limpar Campos" onAction="#handleLimparEditora" />
+        <Button fx:id="btnEditoraBuscar" text="Buscar por ID" onAction="#handleBuscarEditoraPorId" />
+    </HBox>
+
+    <TableView fx:id="tblEditoras" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colEditoraId" text="ID" prefWidth="50" />
+            <TableColumn fx:id="colEditoraNome" text="Nome" prefWidth="200" />
+            <TableColumn fx:id="colEditoraCidade" text="Cidade" prefWidth="150" />
+        </columns>
+    </TableView>
+</VBox>

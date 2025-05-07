@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="controller.TemaController"> <padding>
+    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+</padding>
+
+    <Label text="Gerenciar Temas" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="ID (Buscar/Atualizar/Excluir):" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <TextField fx:id="txtTemaId" promptText="ID do Tema" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+        <Label text="Nome:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <TextField fx:id="txtTemaNome" promptText="Nome do Tema" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="btnTemaSalvar" text="Salvar" onAction="#handleSalvarTema" />
+        <Button fx:id="btnTemaAtualizar" text="Atualizar" onAction="#handleAtualizarTema" />
+        <Button fx:id="btnTemaExcluir" text="Excluir" onAction="#handleExcluirTema" />
+        <Button fx:id="btnTemaLimpar" text="Limpar Campos" onAction="#handleLimparTema" />
+        <Button fx:id="btnTemaBuscar" text="Buscar por ID" onAction="#handleBuscarTemaPorId" />
+    </HBox>
+
+    <TableView fx:id="tblTemas" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colTemaId" text="ID" prefWidth="50" />
+            <TableColumn fx:id="colTemaNome" text="Nome" prefWidth="200" />
+        </columns>
+    </TableView>
+</VBox>

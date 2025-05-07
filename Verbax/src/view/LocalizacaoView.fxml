@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="controller.LocalizacaoController"> <padding>
+    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+</padding>
+
+    <Label text="Gerenciar Localizações" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="ID (Buscar/Atualizar/Excluir):" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <TextField fx:id="txtLocalizacaoId" promptText="ID da Localização" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+        <Label text="Setor:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <TextField fx:id="txtLocalizacaoSetor" promptText="Setor" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+        <Label text="Prateleira:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <TextField fx:id="txtLocalizacaoPrateleira" promptText="Prateleira" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="btnLocalizacaoSalvar" text="Salvar" onAction="#handleSalvarLocalizacao" />
+        <Button fx:id="btnLocalizacaoAtualizar" text="Atualizar" onAction="#handleAtualizarLocalizacao" />
+        <Button fx:id="btnLocalizacaoExcluir" text="Excluir" onAction="#handleExcluirLocalizacao" />
+        <Button fx:id="btnLocalizacaoLimpar" text="Limpar Campos" onAction="#handleLimparLocalizacao" />
+        <Button fx:id="btnLocalizacaoBuscar" text="Buscar por ID" onAction="#handleBuscarLocalizacaoPorId" />
+    </HBox>
+
+    <TableView fx:id="tblLocalizacoes" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colLocalizacaoId" text="ID" prefWidth="50" />
+            <TableColumn fx:id="colLocalizacaoSetor" text="Setor" prefWidth="200" />
+            <TableColumn fx:id="colLocalizacaoPrateleira" text="Prateleira" prefWidth="150" />
+        </columns>
+    </TableView>
+</VBox>
