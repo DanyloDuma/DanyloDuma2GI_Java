@@ -16,14 +16,10 @@ public class Main extends Application {
         try {
             // Carrega o ficheiro FXML da view principal (neste caso, a de Livros)
             // O caminho correto é /application/view/LivroView.fxml com base na estrutura do projeto e no classpath
-            URL fxmlLocation = getClass().getResource("/application/view/LivroView.fxml");
+            URL fxmlLocation = getClass().getResource("/view/LivroView.fxml");
 
             if (fxmlLocation == null) {
-                // Mensagem de erro corrigida para refletir o caminho que estamos a tentar carregar
                 System.err.println("Erro: Ficheiro FXML 'LivroView.fxml' não encontrado no classpath no caminho /application/view/");
-                // Pode adicionar um diálogo de erro aqui para o utilizador, se desejar
-                // Alert alert = new Alert(Alert.AlertType.ERROR, "Não foi possível carregar a interface: Ficheiro FXML não encontrado.", ButtonType.OK);
-                // alert.showAndWait();
                 return; // Sai do método start se o FXML não for encontrado
             }
 
@@ -38,6 +34,13 @@ public class Main extends Application {
 
             // Define o título da janela
             primaryStage.setTitle("Sistema de Gestão de Biblioteca - Livros"); // Título de exemplo
+            primaryStage.setScene(scene);
+
+            // Permite redimensionar
+            primaryStage.setResizable(true);
+
+            // Tela cheia (opcional)
+            primaryStage.setMaximized(true); // ou use setFullScreen(true) para modo total
 
             // Exibe a janela
             primaryStage.show();
@@ -46,9 +49,6 @@ public class Main extends Application {
             // Em caso de erro ao carregar o FXML ou iniciar a aplicação
             e.printStackTrace();
             System.err.println("Erro ao iniciar a aplicação: " + e.getMessage());
-            // Pode adicionar um diálogo de erro aqui para o utilizador
-            // Alert alert = new Alert(Alert.AlertType.ERROR, "Não foi possível carregar a interface devido a um erro interno.", ButtonType.OK);
-            // alert.showAndWait();
         }
     }
 
@@ -59,17 +59,6 @@ public class Main extends Application {
 
     @Override
     public void stop() throws Exception {
-        // Este método é chamado quando a aplicação está prestes a fechar.
-        // É um bom local para fechar recursos globais, como a ligação estática da DBConnection
-        // SE ESTIVESSE A USAR A VERSÃO ANTIGA DA DBConnection.
-        // Com a versão MELHORADA da DBConnection, onde cada DAO gere a sua ligação,
-        // fechar uma ligação estática aqui já não é relevante ou necessário,
-        // pois não há uma única ligação estática persistente para fechar.
-        // Mas se houver outros recursos globais que precisem de ser limpos, faria aqui.
-
-        // Exemplo (comentado, pois não se aplica à DBConnection melhorada):
-        // DBConnection.closeConnection();
-
         System.out.println("Aplicação a fechar.");
         super.stop();
     }
