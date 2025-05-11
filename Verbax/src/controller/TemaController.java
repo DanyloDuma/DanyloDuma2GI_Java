@@ -15,146 +15,103 @@ public class TemaController {
 
     @FXML private TextField txtTemaId;
     @FXML private TextField txtTemaNome;
-
-    @FXML private Button btnTemaSalvar;
-    @FXML private Button btnTemaAtualizar;
-    @FXML private Button btnTemaExcluir;
-    @FXML private Button btnTemaLimpar;
-    @FXML private Button btnTemaBuscar;
-
+    @FXML private Button btnTemaSalvar, btnTemaAtualizar, btnTemaExcluir, btnTemaLimpar, btnTemaBuscar;
     @FXML private TableView<Tema> tblTemas;
     @FXML private TableColumn<Tema, Integer> colTemaId;
     @FXML private TableColumn<Tema, String> colTemaNome;
 
-    private TemaDAO temaDAO;
-    private ObservableList<Tema> temaData;
+    private final TemaDAO temaDAO = new TemaDAO();
+    private final ObservableList<Tema> temaData = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        temaDAO = new TemaDAO();
+        configurarTabela();
+        configurarEventosTabela();
+        carregarTemas();
+        estadoInicial();
+    }
 
-        // Configura as colunas da tabela
+    private void configurarTabela() {
         colTemaId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colTemaNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
-
-        temaData = FXCollections.observableArrayList();
         tblTemas.setItems(temaData);
+    }
 
-        // Adiciona um listener para a seleção de itens na tabela
+    private void configurarEventosTabela() {
         tblTemas.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> preencherCampos(newValue));
-
-        // Carrega os dados iniciais na tabela
-        carregarTemas();
-
-        // Define o estado inicial dos botões
-        btnTemaAtualizar.setDisable(true);
-        btnTemaExcluir.setDisable(true);
+                (obs, oldVal, newVal) -> preencherCampos(newVal)
+        );
     }
 
     private void carregarTemas() {
-        temaData.clear();
-        List<Tema> temas = temaDAO.listarTodos();
-        temaData.addAll(temas);
-        tblTemas.refresh(); // Garante que a tabela seja atualizada visualmente
+        temaData.setAll(temaDAO.listarTodos());
     }
 
     private void preencherCampos(Tema tema) {
         if (tema != null) {
             txtTemaId.setText(String.valueOf(tema.getId()));
             txtTemaNome.setText(tema.getNome());
-
-            txtTemaId.setDisable(true); // ID não deve ser editado diretamente após seleção/busca
-            btnTemaSalvar.setDisable(true); // Evita salvar duplicado se os campos já estiverem preenchidos com um item existente
-            btnTemaAtualizar.setDisable(false); // Permite atualizar
-            btnTemaExcluir.setDisable(false); // Permite excluir
-        } else {
-            handleLimparTema(); // Chama limpar se nada for selecionado (ou desselecionado)
+            txtTemaId.setDisable(true);
+            btnTemaSalvar.setDisable(true);
+            btnTemaAtualizar.setDisable(false);
+            btnTemaExcluir.setDisable(false);
         }
     }
 
     @FXML
     private void handleSalvarTema() {
-        String nome = txtTemaNome.getText();
+        String nome = txtTemaNome.getText().trim();
 
         if (nome.isEmpty()) {
             exibirAlerta(Alert.AlertType.ERROR, "Erro de Validação", "O campo Nome é obrigatório.");
             return;
         }
 
-        // ID é gerado pelo banco de dados.
         Tema novoTema = new Tema(0, nome);
         if (temaDAO.inserir(novoTema)) {
-            exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Tema salvo com sucesso!");
-            carregarTemas();
-            handleLimparTema();
+            sucesso("Tema salvo com sucesso!");
         } else {
-            exibirAlerta(Alert.AlertType.ERROR, "Erro ao Salvar", "Falha ao salvar o tema no banco de dados.");
+            erro("Falha ao salvar o tema.");
         }
     }
 
     @FXML
     private void handleAtualizarTema() {
-        String idStr = txtTemaId.getText();
-        String nome = txtTemaNome.getText();
-
-        if (idStr.isEmpty() || nome.isEmpty()) {
-            exibirAlerta(Alert.AlertType.ERROR, "Erro de Validação", "Os campos ID e Nome são obrigatórios para atualização.");
-            return;
-        }
-
         try {
-            int id = Integer.parseInt(idStr);
+            int id = Integer.parseInt(txtTemaId.getText().trim());
+            String nome = txtTemaNome.getText().trim();
+
+            if (nome.isEmpty()) {
+                exibirAlerta(Alert.AlertType.ERROR, "Erro de Validação", "O campo Nome é obrigatório.");
+                return;
+            }
+
             Tema tema = new Tema(id, nome);
             if (temaDAO.atualizar(tema)) {
-                exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Tema atualizado com sucesso!");
-                carregarTemas();
-                handleLimparTema();
+                sucesso("Tema atualizado com sucesso!");
             } else {
-                exibirAlerta(Alert.AlertType.ERROR, "Erro ao Atualizar", "Falha ao atualizar o tema. Verifique se o ID é válido e existe.");
+                erro("Falha ao atualizar o tema.");
             }
         } catch (NumberFormatException e) {
-            exibirAlerta(Alert.AlertType.ERROR, "Erro de Formato", "O ID do tema deve ser um número válido.");
+            erro("ID inválido.");
         }
     }
 
     @FXML
     private void handleExcluirTema() {
-        String idStr = txtTemaId.getText();
-        Tema selecionado = tblTemas.getSelectionModel().getSelectedItem();
+        try {
+            int id = Integer.parseInt(txtTemaId.getText().trim());
 
-        if (idStr.isEmpty() && selecionado == null) {
-            exibirAlerta(Alert.AlertType.WARNING, "Nenhuma Seleção", "Por favor, digite um ID ou selecione um tema na tabela para excluir.");
-            return;
-        }
+            if (!confirmar("Tem certeza que deseja excluir o tema com ID " + id + "?")) return;
 
-        int idParaExcluir;
-        if (!idStr.isEmpty()) {
-            try {
-                idParaExcluir = Integer.parseInt(idStr);
-            } catch (NumberFormatException e) {
-                exibirAlerta(Alert.AlertType.ERROR, "Erro de Formato", "O ID fornecido para exclusão é inválido.");
-                return;
-            }
-        } else { // selecionado != null
-            idParaExcluir = selecionado.getId();
-        }
-
-        Alert alertConfirmacao = new Alert(Alert.AlertType.CONFIRMATION,
-                "Tem certeza que deseja excluir o tema com ID " + idParaExcluir + "?",
-                ButtonType.YES, ButtonType.NO);
-        alertConfirmacao.setTitle("Confirmar Exclusão");
-        alertConfirmacao.setHeaderText(null);
-        Optional<ButtonType> resultado = alertConfirmacao.showAndWait();
-
-        if (resultado.isPresent() && resultado.get() == ButtonType.YES) {
-            if (temaDAO.excluir(idParaExcluir)) {
-                exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Tema excluído com sucesso!");
-                carregarTemas();
-                handleLimparTema();
+            if (temaDAO.excluir(id)) {
+                sucesso("Tema excluído com sucesso!");
             } else {
-                exibirAlerta(Alert.AlertType.ERROR, "Erro ao Excluir", "Falha ao excluir o tema. Verifique se o ID é válido, existe e não está em uso por outra entidade (ex: Livro).");
+                erro("Falha ao excluir o tema. Verifique se o ID existe ou está em uso.");
             }
+
+        } catch (NumberFormatException e) {
+            erro("ID inválido.");
         }
     }
 
@@ -162,50 +119,64 @@ public class TemaController {
     private void handleLimparTema() {
         txtTemaId.clear();
         txtTemaNome.clear();
+        txtTemaId.setDisable(false);
         tblTemas.getSelectionModel().clearSelection();
-
-        txtTemaId.setDisable(false); // Permite digitar ID para busca
-        btnTemaSalvar.setDisable(false); // Permite salvar
-        btnTemaAtualizar.setDisable(true); // Desabilita atualizar ao limpar
-        btnTemaExcluir.setDisable(true); // Desabilita excluir ao limpar
-
-        txtTemaNome.requestFocus(); // Foco no campo nome para nova entrada
+        estadoInicial();
     }
 
     @FXML
     private void handleBuscarTemaPorId() {
-        String idStr = txtTemaId.getText();
-        if (idStr.isEmpty()) {
-            exibirAlerta(Alert.AlertType.WARNING, "Campo Vazio", "Por favor, insira um ID para buscar.");
-            return;
-        }
-
         try {
-            int id = Integer.parseInt(idStr);
+            int id = Integer.parseInt(txtTemaId.getText().trim());
             Tema tema = temaDAO.buscarPorId(id);
-            if (tema != null) {
-                preencherCampos(tema); // Isso também desabilitará o campo ID e ajustará botões
 
-                // Seleciona e foca o item na tabela (se existir)
-                tblTemas.getItems().stream()
-                        .filter(item -> item.getId() == id)
-                        .findFirst()
-                        .ifPresent(item -> {
-                            tblTemas.getSelectionModel().select(item);
-                            tblTemas.scrollTo(item);
-                        });
+            if (tema != null) {
+                preencherCampos(tema);
+                selecionarNaTabela(id);
             } else {
-                exibirAlerta(Alert.AlertType.INFORMATION, "Não Encontrado", "Tema com ID " + id + " não encontrado.");
-                // Limpa o campo de nome, mas mantém o ID digitado.
+                exibirAlerta(Alert.AlertType.INFORMATION, "Não encontrado", "Tema com ID " + id + " não localizado.");
                 txtTemaNome.clear();
-                txtTemaId.setDisable(false); // Permite editar o ID para nova busca
-                btnTemaSalvar.setDisable(false);
-                btnTemaAtualizar.setDisable(true);
-                btnTemaExcluir.setDisable(true);
             }
+
         } catch (NumberFormatException e) {
-            exibirAlerta(Alert.AlertType.ERROR, "Erro de Formato", "O ID do tema deve ser um número válido.");
+            erro("ID inválido.");
         }
+    }
+
+    private void selecionarNaTabela(int id) {
+        temaData.stream()
+                .filter(t -> t.getId() == id)
+                .findFirst()
+                .ifPresent(t -> {
+                    tblTemas.getSelectionModel().select(t);
+                    tblTemas.scrollTo(t);
+                });
+    }
+
+    private void estadoInicial() {
+        btnTemaSalvar.setDisable(false);
+        btnTemaAtualizar.setDisable(true);
+        btnTemaExcluir.setDisable(true);
+        txtTemaNome.requestFocus();
+        carregarTemas();
+    }
+
+    private void sucesso(String mensagem) {
+        exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", mensagem);
+        estadoInicial();
+        handleLimparTema();
+    }
+
+    private void erro(String mensagem) {
+        exibirAlerta(Alert.AlertType.ERROR, "Erro", mensagem);
+    }
+
+    private boolean confirmar(String mensagem) {
+        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION, mensagem, ButtonType.YES, ButtonType.NO);
+        alerta.setTitle("Confirmação");
+        alerta.setHeaderText(null);
+        Optional<ButtonType> resultado = alerta.showAndWait();
+        return resultado.isPresent() && resultado.get() == ButtonType.YES;
     }
 
     private void exibirAlerta(Alert.AlertType tipo, String titulo, String mensagem) {

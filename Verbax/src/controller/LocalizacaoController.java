@@ -28,52 +28,68 @@ public class LocalizacaoController {
     @FXML private TableColumn<Localizacao, String> colLocalizacaoSetor;
     @FXML private TableColumn<Localizacao, String> colLocalizacaoPrateleira;
 
-    private LocalizacaoDAO localizacaoDAO;
-    private ObservableList<Localizacao> localizacaoData;
+    private final LocalizacaoDAO localizacaoDAO = new LocalizacaoDAO();
+    private final ObservableList<Localizacao> localizacaoData = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        localizacaoDAO = new LocalizacaoDAO();
+        configurarTabela();
+        configurarSelecaoTabela();
+        carregarLocalizacoes();
+        estadoInicialBotoes();
+    }
 
-        // Configura as colunas da tabela
+    private void configurarTabela() {
         colLocalizacaoId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colLocalizacaoSetor.setCellValueFactory(new PropertyValueFactory<>("setor"));
         colLocalizacaoPrateleira.setCellValueFactory(new PropertyValueFactory<>("prateleira"));
-
-        localizacaoData = FXCollections.observableArrayList();
         tblLocalizacoes.setItems(localizacaoData);
+    }
 
-        // Adiciona um listener para a seleção de itens na tabela
+    private void configurarSelecaoTabela() {
         tblLocalizacoes.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> preencherCampos(newValue));
+                (obs, oldSelection, newSelection) -> preencherCampos(newSelection));
+    }
 
-        // Carrega os dados iniciais na tabela
-        carregarLocalizacoes();
+    private void carregarLocalizacoes() {
+        localizacaoData.setAll(localizacaoDAO.listarTodos());
+        tblLocalizacoes.refresh();
+    }
 
-        // Define o estado inicial dos botões (opcional, mas bom para UX)
+    private void estadoInicialBotoes() {
         btnLocalizacaoAtualizar.setDisable(true);
         btnLocalizacaoExcluir.setDisable(true);
     }
 
-    private void carregarLocalizacoes() {
-        localizacaoData.clear();
-        List<Localizacao> localizacoes = localizacaoDAO.listarTodos();
-        localizacaoData.addAll(localizacoes);
-        tblLocalizacoes.refresh(); // Garante que a tabela seja atualizada visualmente
+    private void preencherCampos(Localizacao loc) {
+        if (loc == null) {
+            handleLimparLocalizacao();
+            return;
+        }
+
+        txtLocalizacaoId.setText(String.valueOf(loc.getId()));
+        txtLocalizacaoSetor.setText(loc.getSetor());
+        txtLocalizacaoPrateleira.setText(loc.getPrateleira());
+
+        txtLocalizacaoId.setDisable(true);
+        btnLocalizacaoSalvar.setDisable(true);
+        btnLocalizacaoAtualizar.setDisable(false);
+        btnLocalizacaoExcluir.setDisable(false);
     }
 
-    private void preencherCampos(Localizacao loc) {
-        if (loc != null) {
-            txtLocalizacaoId.setText(String.valueOf(loc.getId()));
-            txtLocalizacaoSetor.setText(loc.getSetor());
-            txtLocalizacaoPrateleira.setText(loc.getPrateleira());
+    private boolean validarCampos(String... campos) {
+        for (String campo : campos) {
+            if (campo == null || campo.trim().isEmpty()) return false;
+        }
+        return true;
+    }
 
-            txtLocalizacaoId.setDisable(true); // ID não deve ser editado diretamente após seleção/busca
-            btnLocalizacaoSalvar.setDisable(true); // Evita salvar duplicado
-            btnLocalizacaoAtualizar.setDisable(false); // Permite atualizar
-            btnLocalizacaoExcluir.setDisable(false); // Permite excluir
-        } else {
-            handleLimparLocalizacao(); // Chama limpar se nada for selecionado (ou desselecionado)
+    private Optional<Integer> parseId(String idStr) {
+        try {
+            return Optional.of(Integer.parseInt(idStr));
+        } catch (NumberFormatException e) {
+            exibirAlerta(Alert.AlertType.ERROR, "ID inválido", "O ID informado deve ser um número.");
+            return Optional.empty();
         }
     }
 
@@ -82,86 +98,86 @@ public class LocalizacaoController {
         String setor = txtLocalizacaoSetor.getText();
         String prateleira = txtLocalizacaoPrateleira.getText();
 
-        if (setor.isEmpty() || prateleira.isEmpty()) {
-            exibirAlerta(Alert.AlertType.ERROR, "Erro de Validação", "Os campos Setor e Prateleira são obrigatórios.");
+        if (!validarCampos(setor, prateleira)) {
+            exibirAlerta(Alert.AlertType.ERROR, "Validação", "Setor e Prateleira são obrigatórios.");
             return;
         }
 
-        // ID é gerado pelo banco de dados, então passamos 0 ou um construtor sem ID.
-        // O DAO.inserir não utiliza o ID do objeto para a query de inserção.
-        Localizacao novaLocalizacao = new Localizacao(0, setor, prateleira);
-        if (localizacaoDAO.inserir(novaLocalizacao)) {
-            exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Localização salva com sucesso!");
+        Localizacao loc = new Localizacao(0, setor, prateleira);
+        if (localizacaoDAO.inserir(loc)) {
+            exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Localização salva com sucesso.");
             carregarLocalizacoes();
             handleLimparLocalizacao();
         } else {
-            exibirAlerta(Alert.AlertType.ERROR, "Erro ao Salvar", "Falha ao salvar a localização no banco de dados.");
+            exibirAlerta(Alert.AlertType.ERROR, "Erro", "Erro ao salvar no banco de dados.");
         }
     }
 
     @FXML
     private void handleAtualizarLocalizacao() {
-        String idStr = txtLocalizacaoId.getText();
+        Optional<Integer> optId = parseId(txtLocalizacaoId.getText());
+        if (optId.isEmpty()) return;
+
         String setor = txtLocalizacaoSetor.getText();
         String prateleira = txtLocalizacaoPrateleira.getText();
 
-        if (idStr.isEmpty() || setor.isEmpty() || prateleira.isEmpty()) {
-            exibirAlerta(Alert.AlertType.ERROR, "Erro de Validação", "Todos os campos (ID, Setor, Prateleira) são obrigatórios para atualização.");
+        if (!validarCampos(setor, prateleira)) {
+            exibirAlerta(Alert.AlertType.ERROR, "Validação", "Todos os campos são obrigatórios.");
             return;
         }
 
-        try {
-            int id = Integer.parseInt(idStr);
-            Localizacao localizacao = new Localizacao(id, setor, prateleira);
-            if (localizacaoDAO.atualizar(localizacao)) {
-                exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Localização atualizada com sucesso!");
-                carregarLocalizacoes();
-                handleLimparLocalizacao();
-            } else {
-                exibirAlerta(Alert.AlertType.ERROR, "Erro ao Atualizar", "Falha ao atualizar a localização. Verifique se o ID é válido e existe.");
-            }
-        } catch (NumberFormatException e) {
-            exibirAlerta(Alert.AlertType.ERROR, "Erro de Formato", "O ID da localização deve ser um número válido.");
+        Localizacao loc = new Localizacao(optId.get(), setor, prateleira);
+        if (localizacaoDAO.atualizar(loc)) {
+            exibirAlerta(Alert.AlertType.INFORMATION, "Atualizado", "Localização atualizada com sucesso.");
+            carregarLocalizacoes();
+            handleLimparLocalizacao();
+        } else {
+            exibirAlerta(Alert.AlertType.ERROR, "Erro", "Erro ao atualizar. Verifique se o ID existe.");
         }
     }
 
     @FXML
     private void handleExcluirLocalizacao() {
-        String idStr = txtLocalizacaoId.getText();
-        Localizacao selecionada = tblLocalizacoes.getSelectionModel().getSelectedItem();
+        Optional<Integer> optId = parseId(txtLocalizacaoId.getText());
+        if (optId.isEmpty()) return;
 
-        if (idStr.isEmpty() && selecionada == null) {
-            exibirAlerta(Alert.AlertType.WARNING, "Nenhuma Seleção", "Por favor, digite um ID ou selecione uma localização na tabela para excluir.");
-            return;
-        }
-
-        int idParaExcluir;
-        if (!idStr.isEmpty()) {
-            try {
-                idParaExcluir = Integer.parseInt(idStr);
-            } catch (NumberFormatException e) {
-                exibirAlerta(Alert.AlertType.ERROR, "Erro de Formato", "O ID fornecido para exclusão é inválido.");
-                return;
-            }
-        } else { // selecionada != null
-            idParaExcluir = selecionada.getId();
-        }
-
-        Alert alertConfirmacao = new Alert(Alert.AlertType.CONFIRMATION,
-                "Tem certeza que deseja excluir a localização com ID " + idParaExcluir + "?",
+        Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION,
+                "Deseja realmente excluir a localização com ID " + optId.get() + "?",
                 ButtonType.YES, ButtonType.NO);
-        alertConfirmacao.setTitle("Confirmar Exclusão");
-        alertConfirmacao.setHeaderText(null); // Sem cabeçalho
-        Optional<ButtonType> resultado = alertConfirmacao.showAndWait();
+        confirmacao.setTitle("Confirmar Exclusão");
 
-        if (resultado.isPresent() && resultado.get() == ButtonType.YES) {
-            if (localizacaoDAO.excluir(idParaExcluir)) {
-                exibirAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Localização excluída com sucesso!");
-                carregarLocalizacoes();
-                handleLimparLocalizacao();
-            } else {
-                exibirAlerta(Alert.AlertType.ERROR, "Erro ao Excluir", "Falha ao excluir a localização. Verifique se o ID é válido e existe.");
+        confirmacao.showAndWait().ifPresent(resposta -> {
+            if (resposta == ButtonType.YES) {
+                if (localizacaoDAO.excluir(optId.get())) {
+                    exibirAlerta(Alert.AlertType.INFORMATION, "Excluído", "Localização excluída com sucesso.");
+                    carregarLocalizacoes();
+                    handleLimparLocalizacao();
+                } else {
+                    exibirAlerta(Alert.AlertType.ERROR, "Erro", "Erro ao excluir. Verifique o ID.");
+                }
             }
+        });
+    }
+
+    @FXML
+    private void handleBuscarLocalizacaoPorId() {
+        Optional<Integer> optId = parseId(txtLocalizacaoId.getText());
+        if (optId.isEmpty()) return;
+
+        Localizacao loc = localizacaoDAO.buscarPorId(optId.get());
+        if (loc != null) {
+            preencherCampos(loc);
+            tblLocalizacoes.getItems().stream()
+                    .filter(item -> item.getId() == loc.getId())
+                    .findFirst()
+                    .ifPresent(item -> {
+                        tblLocalizacoes.getSelectionModel().select(item);
+                        tblLocalizacoes.scrollTo(item);
+                    });
+        } else {
+            exibirAlerta(Alert.AlertType.INFORMATION, "Não encontrado", "Localização com ID " + optId.get() + " não encontrada.");
+            txtLocalizacaoSetor.clear();
+            txtLocalizacaoPrateleira.clear();
         }
     }
 
@@ -170,59 +186,19 @@ public class LocalizacaoController {
         txtLocalizacaoId.clear();
         txtLocalizacaoSetor.clear();
         txtLocalizacaoPrateleira.clear();
+        txtLocalizacaoId.setDisable(false);
+
         tblLocalizacoes.getSelectionModel().clearSelection();
-
-        txtLocalizacaoId.setDisable(false); // Permite digitar ID para busca ou novo (se aplicável)
-        btnLocalizacaoSalvar.setDisable(false); // Permite salvar
-        btnLocalizacaoAtualizar.setDisable(true); // Desabilita atualizar ao limpar
-        btnLocalizacaoExcluir.setDisable(true); // Desabilita excluir ao limpar
-
-        txtLocalizacaoSetor.requestFocus(); // Foco no campo setor para nova entrada
-    }
-
-    @FXML
-    private void handleBuscarLocalizacaoPorId() {
-        String idStr = txtLocalizacaoId.getText();
-        if (idStr.isEmpty()) {
-            exibirAlerta(Alert.AlertType.WARNING, "Campo Vazio", "Por favor, insira um ID para buscar.");
-            return;
-        }
-
-        try {
-            int id = Integer.parseInt(idStr);
-            Localizacao loc = localizacaoDAO.buscarPorId(id);
-            if (loc != null) {
-                // Preenche os campos com os dados encontrados
-                preencherCampos(loc); // Isso também desabilitará o campo ID e ajustará botões
-
-                // Seleciona e foca o item na tabela (se existir)
-                tblLocalizacoes.getItems().stream()
-                        .filter(item -> item.getId() == id)
-                        .findFirst()
-                        .ifPresent(item -> {
-                            tblLocalizacoes.getSelectionModel().select(item);
-                            tblLocalizacoes.scrollTo(item);
-                        });
-            } else {
-                exibirAlerta(Alert.AlertType.INFORMATION, "Não Encontrado", "Localização com ID " + id + " não encontrada.");
-                // Limpa os campos de setor e prateleira, mas mantém o ID digitado para possível cadastro ou nova busca.
-                txtLocalizacaoSetor.clear();
-                txtLocalizacaoPrateleira.clear();
-                txtLocalizacaoId.setDisable(false); // Permite editar o ID para nova busca
-                btnLocalizacaoSalvar.setDisable(false);
-                btnLocalizacaoAtualizar.setDisable(true);
-                btnLocalizacaoExcluir.setDisable(true);
-            }
-        } catch (NumberFormatException e) {
-            exibirAlerta(Alert.AlertType.ERROR, "Erro de Formato", "O ID da localização deve ser um número válido.");
-        }
+        estadoInicialBotoes();
+        btnLocalizacaoSalvar.setDisable(false);
+        txtLocalizacaoSetor.requestFocus();
     }
 
     private void exibirAlerta(Alert.AlertType tipo, String titulo, String mensagem) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null); // Sem cabeçalho, a menos que desejado
-        alert.setContentText(mensagem);
-        alert.showAndWait();
+        Alert alerta = new Alert(tipo);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensagem);
+        alerta.showAndWait();
     }
 }
