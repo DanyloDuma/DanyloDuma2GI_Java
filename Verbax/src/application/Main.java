@@ -1,65 +1,76 @@
-package application; // Pode ajustar o nome do pacote se for diferente
+// Classe Main que inicia a aplicação JavaFX.
+// Serve como ponto de entrada para a aplicação e estende a classe Application.
+package application;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import util.DBConnection; // Importa a classe DBConnection para poder fechá-la ao sair
+import util.DBConnection; // Importa a classe DBConnection para eventual gestão de recursos ao fechar a aplicação
 
-import java.net.URL; // Importar a classe URL para verificar se o recurso foi encontrado
+import java.net.URL; // Importa a classe URL para auxiliar na localização do ficheiro FXML
 
 public class Main extends Application {
 
+    // Método start que inicia a interface gráfica da aplicação.
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Carrega o ficheiro FXML da view principal (neste caso, a de Livros)
-            // O caminho correto é /application/view/LivroView.fxml com base na estrutura do projeto e no classpath
+            // Tenta localizar o ficheiro FXML que define a interface gráfica.
             URL fxmlLocation = getClass().getResource("/view/LivroView.fxml");
 
+            // Se o ficheiro FXML não for encontrado, regista a mensagem de erro e termina o método.
             if (fxmlLocation == null) {
                 System.err.println("Erro: Ficheiro FXML 'LivroView.fxml' não encontrado no classpath no caminho /application/view/");
-                return; // Sai do método start se o FXML não for encontrado
+                return;
             }
 
+            // Cria um FXMLLoader com o URL do ficheiro FXML.
             FXMLLoader loader = new FXMLLoader(fxmlLocation);
+            // Carrega o layout definido no ficheiro FXML e obtém o nó raiz da interface.
             Parent root = loader.load();
 
-            // Cria uma nova cena com o layout carregado
+            // Cria uma Scene com o nó raiz carregado.
             Scene scene = new Scene(root);
 
-            // Define a cena no palco (janela principal)
+            // Define a Scene principal do Stage.
             primaryStage.setScene(scene);
 
-            // Define o título da janela
-            primaryStage.setTitle("Sistema de Gestão de Biblioteca - Livros"); // Título de exemplo
+            // Define o título da janela da aplicação.
+            primaryStage.setTitle("Verbax - Livros");
+
+            // Define a Scene (linha redundante, já definida anteriormente, mas preservada sem alteração sintática).
             primaryStage.setScene(scene);
 
-            // Permite redimensionar
+            // Permite que a janela seja redimensionada.
             primaryStage.setResizable(true);
 
-            // Tela cheia (opcional)
-            primaryStage.setMaximized(true); // ou use setFullScreen(true) para modo total
+            // Inicializa a janela maximizada.
+            primaryStage.setMaximized(true);
 
-            // Exibe a janela
+            // Mostra a janela principal da aplicação.
             primaryStage.show();
 
         } catch (Exception e) {
-            // Em caso de erro ao carregar o FXML ou iniciar a aplicação
+            // Regista a exceção, se ocorrer, e imprime a mensagem de erro.
             e.printStackTrace();
             System.err.println("Erro ao iniciar a aplicação: " + e.getMessage());
         }
     }
 
-    // Método principal que inicia a aplicação JavaFX
+    // Método main que lança a aplicação JavaFX.
     public static void main(String[] args) {
-        launch(args); // Inicia o ciclo de vida da aplicação JavaFX
+        // Inicia o ciclo de vida da aplicação JavaFX.
+        launch(args);
     }
 
+    // Método stop que é invocado ao fechar a aplicação.
     @Override
     public void stop() throws Exception {
+        // Regista no console que a aplicação está a ser encerrada.
         System.out.println("Aplicação a fechar.");
+        // Chama o método stop da classe pai para finalizar a aplicação corretamente.
         super.stop();
     }
 }

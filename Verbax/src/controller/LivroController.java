@@ -1,139 +1,188 @@
 package controller;
 
+// Importações necessárias para a aplicação JavaFX
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType; // Importar ButtonType
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
-import model.*; // Importar todas as classes do pacote model
-import dao.*; // Importar todas as classes do pacote dao
+import model.*;
+import dao.*;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-import javafx.scene.control.TableCell; // Importar TableCell
+
+import javafx.scene.control.TableCell;
 
 public class LivroController implements Initializable {
 
-    // Componentes da interface de utilizador definidos no FXML
-    @FXML private TextField txtLivroId;
-    @FXML private TextField txtLivroTitulo;
-    @FXML private TextField txtLivroAnoPublicacao;
-    @FXML private TextField txtLivroIsbn;
-    @FXML private ComboBox<Autor> cmbLivroAutor;
-    @FXML private ComboBox<Tema> cmbLivroTema;
-    @FXML private ComboBox<Editora> cmbLivroEditora;
-    @FXML private ComboBox<Localizacao> cmbLivroLocalizacao;
+    // Campos do formulário definidos no FXML
+    @FXML
+    private TextField txtLivroId;
+    @FXML
+    private TextField txtLivroTitulo;
+    @FXML
+    private TextField txtLivroAnoPublicacao;
+    @FXML
+    private TextField txtLivroIsbn;
+    @FXML
+    private ComboBox<Autor> cmbLivroAutor;
+    @FXML
+    private ComboBox<Tema> cmbLivroTema;
+    @FXML
+    private ComboBox<Editora> cmbLivroEditora;
+    @FXML
+    private ComboBox<Localizacao> cmbLivroLocalizacao;
 
-    @FXML private Button btnLivroSalvar;
-    @FXML private Button btnLivroAtualizar;
-    @FXML private Button btnLivroExcluir;
-    @FXML private Button btnLivroLimpar;
-    @FXML private Button btnLivroBuscar;
+    @FXML
+    private Button btnLivroSalvar;
+    @FXML
+    private Button btnLivroAtualizar;
+    @FXML
+    private Button btnLivroExcluir;
+    @FXML
+    private Button btnLivroLimpar;
+    @FXML
+    private Button btnLivroBuscar;
 
-    @FXML private TableView<Livro> tblLivros;
-    @FXML private TableColumn<Livro, Integer> colLivroId;
-    @FXML private TableColumn<Livro, String> colLivroTitulo;
-    @FXML private TableColumn<Livro, Integer> colLivroAnoPublicacao;
-    @FXML private TableColumn<Livro, String> colLivroIsbn;
-    @FXML private TableColumn<Livro, Autor> colLivroAutor;
-    @FXML private TableColumn<Livro, Tema> colLivroTema;
-    @FXML private TableColumn<Livro, Editora> colLivroEditora;
-    @FXML private TableColumn<Livro, Localizacao> colLivroLocalizacao;
+    // Botões para abrir janelas de gestão de entidades relacionadas
+    @FXML
+    private Button btnGerenciarAutor;
+    @FXML
+    private Button btnGerenciarTema;
+    @FXML
+    private Button btnGerenciarEditora;
+    @FXML
+    private Button btnGerenciarLocalizacao;
 
-    // Instâncias dos Data Access Objects para interagir com a base de dados
+    // Tabela e colunas para exibir os livros
+    @FXML
+    private TableView<Livro> tblLivros;
+    @FXML
+    private TableColumn<Livro, Integer> colLivroId;
+    @FXML
+    private TableColumn<Livro, String> colLivroTitulo;
+    @FXML
+    private TableColumn<Livro, Integer> colLivroAnoPublicacao;
+    @FXML
+    private TableColumn<Livro, String> colLivroIsbn;
+    @FXML
+    private TableColumn<Livro, Autor> colLivroAutor;
+    @FXML
+    private TableColumn<Livro, Tema> colLivroTema;
+    @FXML
+    private TableColumn<Livro, Editora> colLivroEditora;
+    @FXML
+    private TableColumn<Livro, Localizacao> colLivroLocalizacao;
+
+    // DAOs para acesso à base de dados
     private LivroDAO livroDAO;
     private AutorDAO autorDAO;
     private TemaDAO temaDAO;
     private EditoraDAO editoraDAO;
     private LocalizacaoDAO localizacaoDAO;
 
-    // Listas observáveis para preencher a TableView e os ComboBoxes
+    // Listas observáveis para alimentar a interface
     private ObservableList<Livro> listaLivros;
     private ObservableList<Autor> listaAutores;
     private ObservableList<Tema> listaTemas;
     private ObservableList<Editora> listaEditoras;
     private ObservableList<Localizacao> listaLocalizacoes;
 
-    // Método chamado automaticamente após o carregamento do FXML
+    // Inicializa o controlador
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Inicializa os DAOs
+        // Instancia os DAOs
         livroDAO = new LivroDAO();
         autorDAO = new AutorDAO();
         temaDAO = new TemaDAO();
         editoraDAO = new EditoraDAO();
         localizacaoDAO = new LocalizacaoDAO();
 
-        // Configura as colunas da TableView para mapear para as propriedades do modelo Livro
+        // Define como os dados são exibidos nas colunas da tabela
         colLivroId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colLivroTitulo.setCellValueFactory(new PropertyValueFactory<>("titulo"));
         colLivroAnoPublicacao.setCellValueFactory(new PropertyValueFactory<>("anoPublicacao"));
         colLivroIsbn.setCellValueFactory(new PropertyValueFactory<>("isbn"));
-        // Para objetos relacionados, use PropertyValueFactory apontando para o nome da propriedade
-        // e garanta que a classe do modelo tenha getters para essas propriedades (o que tem)
         colLivroAutor.setCellValueFactory(new PropertyValueFactory<>("autor"));
         colLivroTema.setCellValueFactory(new PropertyValueFactory<>("tema"));
         colLivroEditora.setCellValueFactory(new PropertyValueFactory<>("editora"));
         colLivroLocalizacao.setCellValueFactory(new PropertyValueFactory<>("localizacao"));
 
-        // Define Cell Factories personalizados para as colunas de objetos relacionados
-        // para exibir informações significativas em vez da referência do objeto
+        // Configura como os objetos são apresentados nas células da tabela
+        configureCellFactories();
+
+        // Carrega os dados nas ComboBoxes
+        carregarComboBoxes();
+
+        // Carrega os livros na tabela
+        carregarTableViewLivros();
+
+        // Adiciona um ouvinte para quando o utilizador selecionar um livro na tabela
+        tblLivros.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> selecionarLivro(newValue));
+    }
+
+    // Configura as células da tabela para exibir texto amigável
+    private void configureCellFactories() {
         colLivroAutor.setCellFactory(column -> new TableCell<Livro, Autor>() {
             @Override
             protected void updateItem(Autor item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item.getNome()); // Exibe o nome do Autor
+                setText(empty || item == null ? "" : item.getNome());
             }
         });
         colLivroTema.setCellFactory(column -> new TableCell<Livro, Tema>() {
             @Override
             protected void updateItem(Tema item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item.getNome()); // Exibe o nome do Tema
+                setText(empty || item == null ? "" : item.getNome());
             }
         });
         colLivroEditora.setCellFactory(column -> new TableCell<Livro, Editora>() {
             @Override
             protected void updateItem(Editora item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item.getNome()); // Exibe o nome da Editora
+                setText(empty || item == null ? "" : item.getNome());
             }
         });
         colLivroLocalizacao.setCellFactory(column -> new TableCell<Livro, Localizacao>() {
             @Override
             protected void updateItem(Localizacao item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item.getSetor() + " - " + item.getPrateleira()); // Exibe detalhes da Localização
+                setText(empty || item == null ? "" : item.getSetor() + " - " + item.getPrateleira());
             }
         });
-
-
-        // Carrega os dados para os ComboBoxes
-        carregarComboBoxes();
-
-        // Carrega os dados iniciais para a TableView
-        carregarTableViewLivros();
-
-        // Adiciona um listener à seleção da TableView para preencher o formulário
-        tblLivros.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> selecionarLivro(newValue));
     }
 
-    // Método para carregar dados nos ComboBoxes
+    // Carrega todas as ComboBoxes com dados da base de dados
     private void carregarComboBoxes() {
+        carregarComboBoxAutores();
+        carregarComboBoxTemas();
+        carregarComboBoxEditoras();
+        carregarComboBoxLocalizacoes();
+    }
+
+    // Carrega autores e define como exibir os nomes na ComboBox
+    private void carregarComboBoxAutores() {
         listaAutores = FXCollections.observableArrayList(autorDAO.listarTodos());
         cmbLivroAutor.setItems(listaAutores);
-        // Configura um StringConverter para o ComboBox de Autor para exibir o nome
         cmbLivroAutor.setConverter(new StringConverter<Autor>() {
             @Override
             public String toString(Autor autor) {
@@ -142,15 +191,15 @@ public class LivroController implements Initializable {
 
             @Override
             public Autor fromString(String string) {
-                // Não é necessário para este caso de uso (selecionar de uma lista)
                 return null;
             }
         });
+    }
 
-
+    // Carrega temas e define como exibir os nomes na ComboBox
+    private void carregarComboBoxTemas() {
         listaTemas = FXCollections.observableArrayList(temaDAO.listarTodos());
         cmbLivroTema.setItems(listaTemas);
-        // Configura um StringConverter para o ComboBox de Tema
         cmbLivroTema.setConverter(new StringConverter<Tema>() {
             @Override
             public String toString(Tema tema) {
@@ -162,10 +211,12 @@ public class LivroController implements Initializable {
                 return null;
             }
         });
+    }
 
+    // Carrega editoras e define como exibir os nomes na ComboBox
+    private void carregarComboBoxEditoras() {
         listaEditoras = FXCollections.observableArrayList(editoraDAO.listarTodos());
         cmbLivroEditora.setItems(listaEditoras);
-        // Configura um StringConverter para o ComboBox de Editora
         cmbLivroEditora.setConverter(new StringConverter<Editora>() {
             @Override
             public String toString(Editora editora) {
@@ -177,10 +228,12 @@ public class LivroController implements Initializable {
                 return null;
             }
         });
+    }
 
+    // Carrega localizações e define como exibir na ComboBox
+    private void carregarComboBoxLocalizacoes() {
         listaLocalizacoes = FXCollections.observableArrayList(localizacaoDAO.listarTodos());
         cmbLivroLocalizacao.setItems(listaLocalizacoes);
-        // Configura um StringConverter para o ComboBox de Localização
         cmbLivroLocalizacao.setConverter(new StringConverter<Localizacao>() {
             @Override
             public String toString(Localizacao localizacao) {
@@ -194,17 +247,14 @@ public class LivroController implements Initializable {
         });
     }
 
-    // Método para carregar dados na TableView de Livros
+    // Carrega todos os livros na tabela
     private void carregarTableViewLivros() {
-        // ESTE MÉTODO CHAMA O DAO QUE USA DBConnection.getConnection()
-        // E DEVIDO À IMPLEMENTAÇÃO ATUAL DE DBConnection E AO USO DE
-        // try-with-resources NOS DAOs, A LIGAÇÃO SERÁ FECHADA APÓS ESTA OPERAÇÃO.
-        // OPERAÇÕES SUBSEQUENTES VIA DAOs FALHARÃO.
         listaLivros = FXCollections.observableArrayList(livroDAO.listarTodos());
         tblLivros.setItems(listaLivros);
+        // tblLivros.refresh(); // Pode ser usado para forçar atualização
     }
 
-    // Método para preencher os campos do formulário com dados de um livro selecionado
+    // Preenche os campos do formulário com os dados do livro selecionado
     private void selecionarLivro(Livro livro) {
         if (livro != null) {
             txtLivroId.setText(String.valueOf(livro.getId()));
@@ -220,13 +270,12 @@ public class LivroController implements Initializable {
         }
     }
 
-    // Manipulador do evento do botão Salvar
+    // Trata o clique no botão "Salvar"
     @FXML
     void handleSalvarLivro(ActionEvent event) {
         if (validarCampos()) {
             Livro livro = new Livro();
             livro.setTitulo(txtLivroTitulo.getText());
-            // É necessário converter para Integer; validarCampos já verifica o formato
             livro.setAnoPublicacao(Integer.parseInt(txtLivroAnoPublicacao.getText()));
             livro.setIsbn(txtLivroIsbn.getText());
             livro.setAutor(cmbLivroAutor.getValue());
@@ -234,38 +283,30 @@ public class LivroController implements Initializable {
             livro.setEditora(cmbLivroEditora.getValue());
             livro.setLocalizacao(cmbLivroLocalizacao.getValue());
 
-            // ESTA OPERAÇÃO CHAMARÁ O DAO QUE USA A LIGAÇÃO. SE ESTA NÃO FOR A PRIMEIRA
-            // OPERAÇÃO APÓS O INÍCIO DA APP, PROVAVELMENTE FALHARÁ DEVIDO À LIGAÇÃO FECHADA.
             boolean inserido = livroDAO.inserir(livro);
-
             if (inserido) {
                 mostrarMensagem(Alert.AlertType.INFORMATION, "Sucesso", "Livro salvo com sucesso!");
                 limparCampos();
-                // Recarregar a tabela provavelmente causará uma falha de ligação
                 carregarTableViewLivros();
             } else {
-                mostrarMensagem(Alert.AlertType.ERROR, "Erro", "Erro ao salvar livro. Verifique o log (e a ligação à base de dados).");
+                mostrarMensagem(Alert.AlertType.ERROR, "Erro", "Erro ao salvar livro.");
             }
         }
     }
 
-    // Manipulador do evento do botão Atualizar
+    // Trata o clique no botão "Atualizar"
     @FXML
     void handleAtualizarLivro(ActionEvent event) {
-        // Verifica se o campo ID está preenchido antes de tentar atualizar
         if (txtLivroId.getText().isEmpty()) {
             mostrarMensagem(Alert.AlertType.WARNING, "Aviso", "Selecione um livro na tabela ou informe o ID para atualizar.");
             return;
         }
-
         if (validarCampos()) {
             try {
-                // É necessário converter para Integer
                 int id = Integer.parseInt(txtLivroId.getText());
                 Livro livro = new Livro();
                 livro.setId(id);
                 livro.setTitulo(txtLivroTitulo.getText());
-                // É necessário converter para Integer; validarCampos já verifica o formato
                 livro.setAnoPublicacao(Integer.parseInt(txtLivroAnoPublicacao.getText()));
                 livro.setIsbn(txtLivroIsbn.getText());
                 livro.setAutor(cmbLivroAutor.getValue());
@@ -273,110 +314,90 @@ public class LivroController implements Initializable {
                 livro.setEditora(cmbLivroEditora.getValue());
                 livro.setLocalizacao(cmbLivroLocalizacao.getValue());
 
-                // ESTA OPERAÇÃO PROVAVELMENTE FALHARÁ DEVIDO À LIGAÇÃO FECHADA.
                 boolean atualizado = livroDAO.atualizar(livro);
-
                 if (atualizado) {
                     mostrarMensagem(Alert.AlertType.INFORMATION, "Sucesso", "Livro atualizado com sucesso!");
                     limparCampos();
-                    // Recarregar a tabela provavelmente causará uma falha de ligação
                     carregarTableViewLivros();
                 } else {
-                    mostrarMensagem(Alert.AlertType.ERROR, "Erro", "Erro ao atualizar livro. Verifique o log (e a ligação à base de dados).");
+                    mostrarMensagem(Alert.AlertType.ERROR, "Erro", "Erro ao atualizar livro.");
                 }
             } catch (NumberFormatException e) {
-                // Captura erro se o ID ou Ano de Publicação não for um número
                 mostrarMensagem(Alert.AlertType.ERROR, "Erro de Formato", "ID e Ano de Publicação devem ser números inteiros.");
             }
         }
     }
 
-    // Manipulador do evento do botão Excluir
+    // Trata o clique no botão "Excluir"
     @FXML
     void handleExcluirLivro(ActionEvent event) {
-        // Verifica se o campo ID está preenchido antes de tentar excluir
         if (txtLivroId.getText().isEmpty()) {
             mostrarMensagem(Alert.AlertType.WARNING, "Aviso", "Selecione um livro na tabela ou informe o ID para excluir.");
             return;
         }
-
         try {
-            // É necessário converter para Integer
             int id = Integer.parseInt(txtLivroId.getText());
-            // Opcional: Adicionar um diálogo de confirmação
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Tem certeza que deseja excluir este livro?", ButtonType.YES, ButtonType.NO);
             alert.setTitle("Confirmação de Exclusão");
-            alert.setHeaderText(null); // Remove o cabeçalho padrão
-            alert.showAndWait(); // Espera pela resposta do utilizador
+            alert.setHeaderText(null);
+            alert.showAndWait();
 
-            // Se o utilizador confirmar (clicar em SIM)
             if (alert.getResult() == ButtonType.YES) {
-                // ESTA OPERAÇÃO PROVAVELMENTE FALHARÁ DEVIDO À LIGAÇÃO FECHADA.
                 boolean excluido = livroDAO.excluir(id);
-
                 if (excluido) {
                     mostrarMensagem(Alert.AlertType.INFORMATION, "Sucesso", "Livro excluído com sucesso!");
                     limparCampos();
-                    // Recarregar a tabela provavelmente causará uma falha de ligação
                     carregarTableViewLivros();
                 } else {
-                    mostrarMensagem(Alert.AlertType.ERROR, "Erro", "Erro ao excluir livro. Verifique o log (e a ligação à base de dados).");
+                    mostrarMensagem(Alert.AlertType.ERROR, "Erro", "Erro ao excluir livro.");
                 }
             }
         } catch (NumberFormatException e) {
-            // Captura erro se o ID não for um número
             mostrarMensagem(Alert.AlertType.ERROR, "Erro de Formato", "ID deve ser um número inteiro.");
         }
     }
 
-    // Manipulador do evento do botão Limpar Campos
+    // Trata o clique no botão "Limpar"
     @FXML
     void handleLimparLivro(ActionEvent event) {
-        limparCampos(); // Chama o método auxiliar para limpar os campos
+        limparCampos();
     }
 
-    // Manipulador do evento do botão Buscar por ID
+    // Trata o clique no botão "Buscar"
     @FXML
     void handleBuscarLivroPorId(ActionEvent event) {
-        // Verifica se o campo ID está preenchido antes de tentar buscar
         if (txtLivroId.getText().isEmpty()) {
             mostrarMensagem(Alert.AlertType.WARNING, "Aviso", "Informe o ID do livro para buscar.");
             return;
         }
-
         try {
-            // É necessário converter para Integer
             int id = Integer.parseInt(txtLivroId.getText());
-            // ESTA OPERAÇÃO PROVAVELMENTE FALHARÁ DEVIDO À LIGAÇÃO FECHADA.
             Livro livro = livroDAO.buscarPorId(id);
-
             if (livro != null) {
-                selecionarLivro(livro); // Preenche os campos com os dados encontrados
-                // Opcional: Destacar na tabela, se o livro estiver visível
+                selecionarLivro(livro);
             } else {
                 mostrarMensagem(Alert.AlertType.INFORMATION, "Não Encontrado", "Livro com ID " + id + " não encontrado.");
-                limparCampos(); // Limpa os campos se o livro não for encontrado
+                limparCampos();
             }
         } catch (NumberFormatException e) {
-            // Captura erro se o ID não for um número
             mostrarMensagem(Alert.AlertType.ERROR, "Erro de Formato", "ID deve ser um número inteiro.");
         }
     }
 
-    // Método auxiliar para limpar todos os campos do formulário
+    // Limpa todos os campos do formulário
     private void limparCampos() {
         txtLivroId.clear();
         txtLivroTitulo.clear();
         txtLivroAnoPublicacao.clear();
         txtLivroIsbn.clear();
-        cmbLivroAutor.setValue(null); // Define o valor selecionado como nulo
+        cmbLivroAutor.setValue(null);
         cmbLivroTema.setValue(null);
         cmbLivroEditora.setValue(null);
         cmbLivroLocalizacao.setValue(null);
-        tblLivros.getSelectionModel().clearSelection(); // Limpa a seleção na tabela
+        tblLivros.getSelectionModel().clearSelection();
     }
 
-    // Método auxiliar para validar os campos do formulário antes de salvar ou atualizar
+    // Valida se todos os campos obrigatórios foram preenchidos corretamente
     private boolean validarCampos() {
         String titulo = txtLivroTitulo.getText();
         String anoPublicacao = txtLivroAnoPublicacao.getText();
@@ -386,31 +407,66 @@ public class LivroController implements Initializable {
         Editora editora = cmbLivroEditora.getValue();
         Localizacao localizacao = cmbLivroLocalizacao.getValue();
 
-        // Verifica se algum campo obrigatório está vazio ou se um item não foi selecionado nos ComboBoxes
         if (titulo.isEmpty() || anoPublicacao.isEmpty() || isbn.isEmpty() || autor == null || tema == null || editora == null || localizacao == null) {
             mostrarMensagem(Alert.AlertType.WARNING, "Campos Incompletos", "Por favor, preencha todos os campos e selecione as opções.");
             return false;
         }
-
-        // Valida se o Ano de Publicação é um número inteiro válido
         try {
-            // Tenta converter para Integer
             Integer.parseInt(anoPublicacao);
         } catch (NumberFormatException e) {
-            // Se falhar, não é um número válido
             mostrarMensagem(Alert.AlertType.ERROR, "Erro de Formato", "Ano de Publicação deve ser um número inteiro.");
             return false;
         }
-
-        return true; // Retorna true se todos os campos forem válidos
+        return true;
     }
 
-    // Método auxiliar para exibir mensagens ao utilizador
+    // Exibe uma mensagem de alerta na interface
     private void mostrarMensagem(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type); // Cria um novo diálogo de alerta do tipo especificado
-        alert.setTitle(title); // Define o título do diálogo
-        alert.setHeaderText(null); // Remove o cabeçalho padrão
-        alert.setContentText(message); // Define o conteúdo da mensagem
-        alert.showAndWait(); // Exibe o diálogo e espera que o utilizador o feche
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    // Método genérico para abrir janelas de gestão de entidades
+    private void abrirJanelaGerenciamento(String fxmlPath, String title, Runnable callbackAtualizacao) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+            if (callbackAtualizacao != null) {
+                callbackAtualizacao.run();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            mostrarMensagem(Alert.AlertType.ERROR, "Erro ao Abrir Janela", "Não foi possível abrir a tela de " + title.toLowerCase() + ".");
+        }
+    }
+
+    // Ações dos botões para abrir janelas de gestão de entidades relacionadas
+    @FXML
+    void handleGerenciarAutor(ActionEvent event) {
+        abrirJanelaGerenciamento("/view/AutorView.fxml", "Gerenciar Autores", this::carregarComboBoxAutores);
+    }
+
+    @FXML
+    void handleGerenciarTema(ActionEvent event) {
+        abrirJanelaGerenciamento("/view/TemaView.fxml", "Gerenciar Temas", this::carregarComboBoxTemas);
+    }
+
+    @FXML
+    void handleGerenciarEditora(ActionEvent event) {
+        abrirJanelaGerenciamento("/view/EditoraView.fxml", "Gerenciar Editoras", this::carregarComboBoxEditoras);
+    }
+
+    @FXML
+    void handleGerenciarLocalizacao(ActionEvent event) {
+        abrirJanelaGerenciamento("/view/LocalizacaoView.fxml", "Gerenciar Localizações", this::carregarComboBoxLocalizacoes);
     }
 }

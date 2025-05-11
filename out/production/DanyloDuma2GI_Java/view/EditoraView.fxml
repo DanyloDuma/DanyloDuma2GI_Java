@@ -1,39 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- Ficheiro FXML que define a interface gráfica para a gestão de editoras -->
+
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="controller.EditoraController"> <padding>
-    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-</padding>
+<!-- Contêiner VBox que organiza os componentes verticalmente com alinhamento centrado e espaçamento de 20.0 -->
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17"
+      fx:controller="controller.EditoraController">
+    <!-- Define os acolchoamentos (margens internas) para o VBox -->
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
 
-    <Label text="Gerenciar Editoras" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+    <!-- Rótulo que atua como título da interface -->
+    <Label text="Gerenciar Editoras" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
 
+    <!-- GridPane para organizar os campos de entrada (ID, Nome e Cidade) em formato de grade -->
     <GridPane hgap="10" vgap="10">
-        <Label text="ID (Buscar/Atualizar/Excluir):" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-        <TextField fx:id="txtEditoraId" promptText="ID da Editora" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+        <!-- Linha 0: Campo para ID, que será usado para buscar, atualizar ou eliminar uma editora -->
+        <Label text="ID (Buscar/Atualizar/Excluir):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtEditoraId" promptText="ID da Editora" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="Nome:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-        <TextField fx:id="txtEditoraNome" promptText="Nome da Editora" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+        <!-- Linha 1: Campo para o nome da editora -->
+        <Label text="Nome:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtEditoraNome" promptText="Nome da Editora" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="Cidade:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-        <TextField fx:id="txtEditoraCidade" promptText="Cidade da Editora" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+        <!-- Linha 2: Campo para a cidade da editora -->
+        <Label text="Cidade:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtEditoraCidade" promptText="Cidade da Editora" GridPane.rowIndex="2"
+                   GridPane.columnIndex="1"/>
     </GridPane>
 
+    <!-- HBox que agrupa os botões de ação: Salvar, Atualizar, Excluir, Limpar Campos e Buscar por ID -->
     <HBox spacing="10" alignment="CENTER">
-        <Button fx:id="btnEditoraSalvar" text="Salvar" onAction="#handleSalvarEditora" />
-        <Button fx:id="btnEditoraAtualizar" text="Atualizar" onAction="#handleAtualizarEditora" />
-        <Button fx:id="btnEditoraExcluir" text="Excluir" onAction="#handleExcluirEditora" />
-        <Button fx:id="btnEditoraLimpar" text="Limpar Campos" onAction="#handleLimparEditora" />
-        <Button fx:id="btnEditoraBuscar" text="Buscar por ID" onAction="#handleBuscarEditoraPorId" />
+        <Button fx:id="btnEditoraSalvar" text="Salvar" onAction="#handleSalvarEditora"/>
+        <Button fx:id="btnEditoraAtualizar" text="Atualizar" onAction="#handleAtualizarEditora"/>
+        <Button fx:id="btnEditoraExcluir" text="Excluir" onAction="#handleExcluirEditora"/>
+        <Button fx:id="btnEditoraLimpar" text="Limpar Campos" onAction="#handleLimparEditora"/>
+        <Button fx:id="btnEditoraBuscar" text="Buscar por ID" onAction="#handleBuscarEditoraPorId"/>
     </HBox>
 
+    <!-- TableView que exibe a lista de editoras com as respetivas colunas ID, Nome e Cidade -->
     <TableView fx:id="tblEditoras" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="colEditoraId" text="ID" prefWidth="50" />
-            <TableColumn fx:id="colEditoraNome" text="Nome" prefWidth="200" />
-            <TableColumn fx:id="colEditoraCidade" text="Cidade" prefWidth="150" />
+            <TableColumn fx:id="colEditoraId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colEditoraNome" text="Nome" prefWidth="200"/>
+            <TableColumn fx:id="colEditoraCidade" text="Cidade" prefWidth="150"/>
         </columns>
     </TableView>
 </VBox>

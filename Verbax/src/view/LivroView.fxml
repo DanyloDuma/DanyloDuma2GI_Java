@@ -1,60 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- Ficheiro FXML que define a interface gráfica para a gestão de Livros -->
+
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.collections.*?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="controller.LivroController"> <padding>
-    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-</padding>
+<!-- Contêiner principal VBox que organiza os elementos verticalmente com alinhamento centrado e espaçamento de 20.0 -->
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17"
+      fx:controller="controller.LivroController">
+    <!-- Define o acolchoamento interno do VBox -->
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
 
-    <Label text="Gerenciar Livros" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+    <!-- Rótulo que atua como título da interface -->
+    <Label text="Gerenciar Livros" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
 
+    <!-- GridPane para organizar os campos de entrada em formato de grelha -->
     <GridPane hgap="10" vgap="10">
-        <Label text="ID (Buscar/Atualizar/Excluir):" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-        <TextField fx:id="txtLivroId" promptText="ID do Livro" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+        <!-- Linha 0: Campo para o ID do Livro (usado para buscar, atualizar ou eliminar) -->
+        <Label text="ID (Buscar/Atualizar/Excluir):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtLivroId" promptText="ID do Livro" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="Título:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-        <TextField fx:id="txtLivroTitulo" promptText="Título do Livro" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+        <!-- Linha 1: Campo para o Título do Livro -->
+        <Label text="Título:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtLivroTitulo" promptText="Título do Livro" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="Ano Publicação:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-        <TextField fx:id="txtLivroAnoPublicacao" promptText="Ano de Publicação" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+        <!-- Linha 2: Campo para o Ano de Publicação do Livro -->
+        <Label text="Ano Publicação:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtLivroAnoPublicacao" promptText="Ano de Publicação" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-        <Label text="ISBN:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-        <TextField fx:id="txtLivroIsbn" promptText="ISBN" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+        <!-- Linha 3: Campo para o ISBN do Livro -->
+        <Label text="ISBN:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtLivroIsbn" promptText="ISBN" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-        <Label text="Autor:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
-        <ComboBox fx:id="cmbLivroAutor" promptText="Selecione o Autor" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+        <!-- Linha 4: Seção para selecionar o Autor com ComboBox e botão para gestão -->
+        <Label text="Autor:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <HBox spacing="5.0" alignment="CENTER_LEFT" GridPane.rowIndex="4" GridPane.columnIndex="1">
+            <!-- ComboBox para selecionar o Autor do Livro -->
+            <ComboBox fx:id="cmbLivroAutor" promptText="Selecione o Autor" HBox.hgrow="ALWAYS"/>
+            <!-- Botão para abrir a gestão de Autores -->
+            <Button fx:id="btnGerenciarAutor" text="..." onAction="#handleGerenciarAutor" prefWidth="30.0"/>
+        </HBox>
 
-        <Label text="Tema:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
-        <ComboBox fx:id="cmbLivroTema" promptText="Selecione o Tema" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+        <!-- Linha 5: Seção para selecionar o Tema com ComboBox e botão para gestão -->
+        <Label text="Tema:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <HBox spacing="5.0" alignment="CENTER_LEFT" GridPane.rowIndex="5" GridPane.columnIndex="1">
+            <!-- ComboBox para selecionar o Tema do Livro -->
+            <ComboBox fx:id="cmbLivroTema" promptText="Selecione o Tema" HBox.hgrow="ALWAYS"/>
+            <!-- Botão para abrir a gestão de Temas -->
+            <Button fx:id="btnGerenciarTema" text="..." onAction="#handleGerenciarTema" prefWidth="30.0"/>
+        </HBox>
 
-        <Label text="Editora:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
-        <ComboBox fx:id="cmbLivroEditora" promptText="Selecione a Editora" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+        <!-- Linha 6: Seção para selecionar a Editora com ComboBox e botão para gestão -->
+        <Label text="Editora:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <HBox spacing="5.0" alignment="CENTER_LEFT" GridPane.rowIndex="6" GridPane.columnIndex="1">
+            <!-- ComboBox para selecionar a Editora do Livro -->
+            <ComboBox fx:id="cmbLivroEditora" promptText="Selecione a Editora" HBox.hgrow="ALWAYS"/>
+            <!-- Botão para abrir a gestão de Editoras -->
+            <Button fx:id="btnGerenciarEditora" text="..." onAction="#handleGerenciarEditora" prefWidth="30.0"/>
+        </HBox>
 
-        <Label text="Localização:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
-        <ComboBox fx:id="cmbLivroLocalizacao" promptText="Selecione a Localização" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+        <!-- Linha 7: Seção para selecionar a Localização com ComboBox e botão para gestão -->
+        <Label text="Localização:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <HBox spacing="5.0" alignment="CENTER_LEFT" GridPane.rowIndex="7" GridPane.columnIndex="1">
+            <!-- ComboBox para selecionar a Localização do Livro -->
+            <ComboBox fx:id="cmbLivroLocalizacao" promptText="Selecione a Localização" HBox.hgrow="ALWAYS"/>
+            <!-- Botão para abrir a gestão de Localizações -->
+            <Button fx:id="btnGerenciarLocalizacao" text="..." onAction="#handleGerenciarLocalizacao" prefWidth="30.0"/>
+        </HBox>
     </GridPane>
 
+    <!-- HBox que agrupa os botões de ação: Salvar, Atualizar, Excluir, Limpar e Buscar -->
     <HBox spacing="10" alignment="CENTER">
-        <Button fx:id="btnLivroSalvar" text="Salvar" onAction="#handleSalvarLivro" />
-        <Button fx:id="btnLivroAtualizar" text="Atualizar" onAction="#handleAtualizarLivro" />
-        <Button fx:id="btnLivroExcluir" text="Excluir" onAction="#handleExcluirLivro" />
-        <Button fx:id="btnLivroLimpar" text="Limpar Campos" onAction="#handleLimparLivro" />
-        <Button fx:id="btnLivroBuscar" text="Buscar por ID" onAction="#handleBuscarLivroPorId" />
+        <Button fx:id="btnLivroSalvar" text="Salvar" onAction="#handleSalvarLivro"/>
+        <Button fx:id="btnLivroAtualizar" text="Atualizar" onAction="#handleAtualizarLivro"/>
+        <Button fx:id="btnLivroExcluir" text="Excluir" onAction="#handleExcluirLivro"/>
+        <Button fx:id="btnLivroLimpar" text="Limpar Campos" onAction="#handleLimparLivro"/>
+        <Button fx:id="btnLivroBuscar" text="Buscar por ID" onAction="#handleBuscarLivroPorId"/>
     </HBox>
 
+    <!-- TableView para exibir a lista de Livros com as respetivas colunas -->
     <TableView fx:id="tblLivros" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="colLivroId" text="ID" prefWidth="50" />
-            <TableColumn fx:id="colLivroTitulo" text="Título" prefWidth="200" />
-            <TableColumn fx:id="colLivroAnoPublicacao" text="Ano" prefWidth="80" />
-            <TableColumn fx:id="colLivroIsbn" text="ISBN" prefWidth="120" />
-            <TableColumn fx:id="colLivroAutor" text="Autor" prefWidth="150" />
-            <TableColumn fx:id="colLivroTema" text="Tema" prefWidth="100" />
-            <TableColumn fx:id="colLivroEditora" text="Editora" prefWidth="150" />
-            <TableColumn fx:id="colLivroLocalizacao" text="Localização" prefWidth="150" />
+            <!-- Coluna para o ID do Livro -->
+            <TableColumn fx:id="colLivroId" text="ID" prefWidth="50"/>
+            <!-- Coluna para o Título do Livro -->
+            <TableColumn fx:id="colLivroTitulo" text="Título" prefWidth="200"/>
+            <!-- Coluna para o Ano de Publicação -->
+            <TableColumn fx:id="colLivroAnoPublicacao" text="Ano" prefWidth="80"/>
+            <!-- Coluna para o ISBN -->
+            <TableColumn fx:id="colLivroIsbn" text="ISBN" prefWidth="120"/>
+            <!-- Coluna para o Autor do Livro -->
+            <TableColumn fx:id="colLivroAutor" text="Autor" prefWidth="150"/>
+            <!-- Coluna para o Tema do Livro -->
+            <TableColumn fx:id="colLivroTema" text="Tema" prefWidth="100"/>
+            <!-- Coluna para a Editora do Livro -->
+            <TableColumn fx:id="colLivroEditora" text="Editora" prefWidth="150"/>
+            <!-- Coluna para a Localização do Livro -->
+            <TableColumn fx:id="colLivroLocalizacao" text="Localização" prefWidth="150"/>
         </columns>
     </TableView>
 </VBox>

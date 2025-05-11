@@ -7,41 +7,48 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO (Data Access Object) responsável pelas operações de persistência da entidade Livro.
+ * Contém métodos para inserir, listar, atualizar, excluir e buscar livros no banco de dados.
+ */
 public class LivroDAO {
 
-    // Método para inserir um novo livro no banco de dados
+    /**
+     * Insere um novo livro no banco de dados.
+     *
+     * @param livro O objeto Livro a ser inserido.
+     * @return true se a inserção for bem-sucedida, false caso contrário.
+     */
     public boolean inserir(Livro livro) {
-        // SQL para inserir um livro, referenciando os IDs das entidades relacionadas
         String sql = "INSERT INTO livro (titulo, ano_publicacao, isbn, id_autor, id_tema, id_editora, id_localizacao) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Definindo os parâmetros da query com base no objeto Livro
             stmt.setString(1, livro.getTitulo());
             stmt.setInt(2, livro.getAnoPublicacao());
             stmt.setString(3, livro.getIsbn());
-            // Obtendo os IDs dos objetos relacionados
             stmt.setInt(4, livro.getAutor().getId());
             stmt.setInt(5, livro.getTema().getId());
             stmt.setInt(6, livro.getEditora().getId());
             stmt.setInt(7, livro.getLocalizacao().getId());
 
-            // Executando a query de inserção
             stmt.executeUpdate();
-            return true; // Retorna true se a inserção for bem-sucedida
+            return true;
 
         } catch (SQLException e) {
-            // Em caso de erro, imprime a mensagem de erro e retorna false
             System.err.println("Erro ao inserir livro: " + e.getMessage());
             return false;
         }
     }
 
-    // Método para listar todos os livros com informações completas das entidades relacionadas
+    /**
+     * Lista todos os livros cadastrados no banco de dados, incluindo suas entidades relacionadas.
+     *
+     * @return Uma lista de objetos Livro.
+     */
     public List<Livro> listarTodos() {
         List<Livro> lista = new ArrayList<>();
-        // SQL com JOINs para obter dados de livro, autor, tema, editora e localização
         String sql = "SELECT " +
                 "l.id AS livro_id, l.titulo, l.ano_publicacao, l.isbn, " +
                 "a.id AS autor_id, a.nome AS autor_nome, a.nacionalidade, " +
@@ -54,115 +61,110 @@ public class LivroDAO {
                 "JOIN editora e ON l.id_editora = e.id " +
                 "JOIN localizacao loc ON l.id_localizacao = loc.id";
 
-
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            // Iterando sobre os resultados da query
             while (rs.next()) {
-                // Criando um novo objeto Livro
                 Livro livro = new Livro();
-                // Populando os atributos do Livro
                 livro.setId(rs.getInt("livro_id"));
                 livro.setTitulo(rs.getString("titulo"));
                 livro.setAnoPublicacao(rs.getInt("ano_publicacao"));
                 livro.setIsbn(rs.getString("isbn"));
 
-                // Criando e populando o objeto Autor associado
                 Autor autor = new Autor();
                 autor.setId(rs.getInt("autor_id"));
                 autor.setNome(rs.getString("autor_nome"));
                 autor.setNacionalidade(rs.getString("nacionalidade"));
                 livro.setAutor(autor);
 
-                // Criando e populando o objeto Tema associado
                 Tema tema = new Tema();
                 tema.setId(rs.getInt("tema_id"));
                 tema.setNome(rs.getString("tema_nome"));
                 livro.setTema(tema);
 
-                // Criando e populando o objeto Editora associada
                 Editora editora = new Editora();
                 editora.setId(rs.getInt("editora_id"));
                 editora.setNome(rs.getString("editora_nome"));
                 editora.setCidade(rs.getString("cidade"));
                 livro.setEditora(editora);
 
-                // Criando e populando o objeto Localizacao associada
                 Localizacao loc = new Localizacao();
                 loc.setId(rs.getInt("localizacao_id"));
                 loc.setSetor(rs.getString("setor"));
                 loc.setPrateleira(rs.getString("prateleira"));
                 livro.setLocalizacao(loc);
 
-                // Adicionando o livro à lista
                 lista.add(livro);
             }
 
         } catch (SQLException e) {
-            // Em caso de erro, imprime a mensagem de erro
             System.err.println("Erro ao listar livros: " + e.getMessage());
         }
 
-        return lista; // Retorna a lista de livros (pode estar vazia em caso de erro ou sem resultados)
+        return lista;
     }
 
-    // Método para atualizar um livro existente no banco de dados
+    /**
+     * Atualiza um livro existente no banco de dados.
+     *
+     * @param livro O objeto Livro com os dados atualizados.
+     * @return true se a atualização for bem-sucedida, false caso contrário.
+     */
     public boolean atualizar(Livro livro) {
-        // SQL para atualizar um livro, referenciando os IDs das entidades relacionadas
         String sql = "UPDATE livro SET titulo = ?, ano_publicacao = ?, isbn = ?, id_autor = ?, id_tema = ?, id_editora = ?, id_localizacao = ? WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Definindo os parâmetros da query com base no objeto Livro
             stmt.setString(1, livro.getTitulo());
             stmt.setInt(2, livro.getAnoPublicacao());
             stmt.setString(3, livro.getIsbn());
-            // Obtendo os IDs dos objetos relacionados
             stmt.setInt(4, livro.getAutor().getId());
             stmt.setInt(5, livro.getTema().getId());
             stmt.setInt(6, livro.getEditora().getId());
             stmt.setInt(7, livro.getLocalizacao().getId());
-            stmt.setInt(8, livro.getId()); // ID do livro a ser atualizado
+            stmt.setInt(8, livro.getId());
 
-            // Executando a query de atualização
             stmt.executeUpdate();
-            return true; // Retorna true se a atualização for bem-sucedida
+            return true;
 
         } catch (SQLException e) {
-            // Em caso de erro, imprime a mensagem de erro e retorna false
             System.err.println("Erro ao atualizar livro: " + e.getMessage());
             return false;
         }
     }
 
-    // Método para excluir um livro do banco de dados por ID
+    /**
+     * Exclui um livro do banco de dados com base no seu ID.
+     *
+     * @param id O ID do livro a ser excluído.
+     * @return true se a exclusão for bem-sucedida, false caso contrário.
+     */
     public boolean excluir(int id) {
-        // SQL para excluir um livro pelo seu ID
         String sql = "DELETE FROM livro WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Definindo o parâmetro da query (o ID do livro)
             stmt.setInt(1, id);
-            // Executando a query de exclusão
             stmt.executeUpdate();
-            return true; // Retorna true se a exclusão for bem-sucedida
+            return true;
 
         } catch (SQLException e) {
-            // Em caso de erro, imprime a mensagem de erro e retorna false
             System.err.println("Erro ao excluir livro: " + e.getMessage());
             return false;
         }
     }
 
-    // Método para buscar um livro por ID com informações completas das entidades relacionadas
+    /**
+     * Busca um livro pelo seu ID, retornando também as informações completas das entidades relacionadas.
+     *
+     * @param id O ID do livro a ser buscado.
+     * @return Um objeto Livro, ou null se não encontrado ou em caso de erro.
+     */
     public Livro buscarPorId(int id) {
         Livro livro = null;
-        // SQL com JOINs para obter dados de livro, autor, tema, editora e localização para um ID específico
         String sql = "SELECT " +
                 "l.id AS livro_id, l.titulo, l.ano_publicacao, l.isbn, " +
                 "a.id AS autor_id, a.nome AS autor_nome, a.nacionalidade, " +
@@ -176,46 +178,36 @@ public class LivroDAO {
                 "JOIN localizacao loc ON l.id_localizacao = loc.id " +
                 "WHERE l.id = ?";
 
-
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Definindo o parâmetro da query (o ID do livro)
             stmt.setInt(1, id);
-            // Executando a query de busca
             ResultSet rs = stmt.executeQuery();
 
-            // Verificando se há resultados
             if (rs.next()) {
-                // Criando um novo objeto Livro
                 livro = new Livro();
-                // Populando os atributos do Livro
                 livro.setId(rs.getInt("livro_id"));
                 livro.setTitulo(rs.getString("titulo"));
                 livro.setAnoPublicacao(rs.getInt("ano_publicacao"));
                 livro.setIsbn(rs.getString("isbn"));
 
-                // Criando e populando o objeto Autor associado
                 Autor autor = new Autor();
                 autor.setId(rs.getInt("autor_id"));
                 autor.setNome(rs.getString("autor_nome"));
                 autor.setNacionalidade(rs.getString("nacionalidade"));
                 livro.setAutor(autor);
 
-                // Criando e populando o objeto Tema associado
                 Tema tema = new Tema();
                 tema.setId(rs.getInt("tema_id"));
                 tema.setNome(rs.getString("tema_nome"));
                 livro.setTema(tema);
 
-                // Criando e populando o objeto Editora associada
                 Editora editora = new Editora();
                 editora.setId(rs.getInt("editora_id"));
                 editora.setNome(rs.getString("editora_nome"));
                 editora.setCidade(rs.getString("cidade"));
                 livro.setEditora(editora);
 
-                // Criando e populando o objeto Localizacao associada
                 Localizacao loc = new Localizacao();
                 loc.setId(rs.getInt("localizacao_id"));
                 loc.setSetor(rs.getString("setor"));
@@ -224,10 +216,9 @@ public class LivroDAO {
             }
 
         } catch (SQLException e) {
-            // Em caso de erro, imprime a mensagem de erro
             System.err.println("Erro ao buscar livro: " + e.getMessage());
         }
 
-        return livro; // Retorna o livro encontrado (ou null se não encontrado ou em caso de erro)
+        return livro;
     }
 }
