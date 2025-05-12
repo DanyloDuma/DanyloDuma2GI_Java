@@ -45,7 +45,7 @@ Verbax/
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/DanyloDuma/verbax.git
+   git clone https://github.com/DanyloDuma/DanyloDuma2GI_Java.git
    cd verbax
    ```
 
